@@ -1,0 +1,9 @@
+Flask
+SQLAlchemy
+psycopg2
+openai
+transformers
+asyncio
+pytest
+python-dotenv
+openai
