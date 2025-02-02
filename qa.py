@@ -1,4 +1,5 @@
-import openai
+from ollama import chat
+from ollama import ChatResponse
 from db import establish_db_connection
 import asyncio
 
@@ -22,14 +23,26 @@ async def fetch_embeddings_from_db(question):
     return [result[0] for result in results]
 
 
-def generate_answer(question, embeddings):
-    local_url = "http://localhost:1234/v1/chat/completions"
-    response = openai.ChatCompletion.create(
-        url=local_url,
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "user", "content": question},
-            {"role": "system", "content": str(embeddings)},
-        ],
-    )
-    return response["choices"][0]["message"]["content"]
+def generate_answer(question, embeddings=None):
+    # Define the chat input
+    messages = [
+        {
+            "role": "user",
+            "content": question,
+        },
+    ]
+
+    # If embeddings are provided, add them to the chat input
+    if embeddings is not None:
+        messages.append(
+            {
+                "role": "assistant",
+                "content": embeddings,
+            }
+        )
+
+    # Generate the response
+    response: ChatResponse = chat(model="llama3.2", messages=messages)
+
+    # Return the generated answer
+    return response.message.content
